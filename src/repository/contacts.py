@@ -1,4 +1,5 @@
 from typing import List
+from sqlalchemy import and_, extract
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from src.database.models import Contact
@@ -49,15 +50,19 @@ async def search_contacts(db: Session, name: str = None, surname: str = None, em
     query = db.query(Contact)
 
     if name:
-        query = query.filter(Contact.name.ilike(f"%{name}%"))
+        query = query.filter(and_(Contact.name.ilike(f"%{name}%")))
     if surname:
-        query = query.filter(Contact.last_name.ilike(f"%{surname}%"))
+        query = query.filter(and_(Contact.last_name.ilike(f"%{surname}%")))
     if email:
-        query = query.filter(Contact.email.ilike(f"%{email}%"))
+        query = query.filter(and_(Contact.email.ilike(f"%{email}%")))
     if upcoming_birthdays:
         today = datetime.now().date()
         next_week = today + timedelta(days=7)
-        query = query.filter(Contact.date_of_birth >= today,
-                             Contact.date_of_birth <= next_week)
+        query = query.filter(
+            and_(
+                extract('month', Contact.date_of_birth) == today.month,
+                extract('day', Contact.date_of_birth) >= today.day,
+                extract('month', Contact.date_of_birth) == next_week.month,
+                extract('day', Contact.date_of_birth) <= next_week.day))
     contacts = query.all()
     return contacts

@@ -48,7 +48,7 @@ async def remove_contact(contact_id: int, db: Session = Depends(get_db)):
     return contact
 
 
-@router.get("/search", response_model=List[ContactResponse])
+@router.get("/filter/search", response_model=List[ContactResponse])
 async def search_contacts(
     db: Session = Depends(get_db),
     name: str = Query(None, title="Name filter",
