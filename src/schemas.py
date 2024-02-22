@@ -44,6 +44,7 @@ class UserDb(BaseModel):
     username: str
     email: EmailStr
     created_at: datetime
+    avatar: str | None
 
     class Config:
         orm_mode = True
